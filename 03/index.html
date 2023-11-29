@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Motion Example</title>
+</head>
+
+<body>
+    <h1>加速度センサーデータ</h1>
+    <button id="permissionButton">センサー許可</button>
+    <div id="accelerometer">
+        <p>X: <span id="accelerationX">0</span></p>
+        <p>Y: <span id="accelerationY">0</span></p>
+        <p>Z: <span id="accelerationZ">0</span></p>
+    </div>
+    <script>
+        function setupDeviceMotion() {
+            window.addEventListener('devicemotion', (event) => {
+                document.getElementById('accelerationX').textContent = event.acceleration.x.toFixed(2);
+                document.getElementById('accelerationY').textContent = event.acceleration.y.toFixed(2);
+                document.getElementById('accelerationZ').textContent = event.acceleration.z.toFixed(2);
+            });
+        }
+
+        function requestPermission() {
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            setupDeviceMotion();
+                        } else {
+                            alert('加速度センサーへのアクセスが許可されていません。');
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                setupDeviceMotion();
+            }
+        }
+
+        document.getElementById('permissionButton').addEventListener('click', function () {
+            requestPermission();
+        });
+
+    </script>
+</body>
+
+</html>

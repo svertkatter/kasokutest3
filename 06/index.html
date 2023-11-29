@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Motion Example</title>
+</head>
+
+<body>
+    <h1>加速度センサーデータ</h1>
+    <button id="permissionButton">センサー許可</button>
+    <button id="resetButton">円のサイズリセット</button>
+    <canvas id="canvas" width="300" height="300"></canvas>
+    <script>
+        function sendAccelerationData(acceleration) {
+            // 外部サーバーのエンドポイント
+            const endpoint = 'https://your-server.com/api/receive-data';
+
+            // HTTPリクエストを使用してデータを送信
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    x: acceleration.x,
+                    y: acceleration.y,
+                    z: acceleration.z
+                })
+            })
+                .then(response => response.json())
+                .then(data => console.log('Success:', data))
+                .catch((error) => console.error('Error:', error));
+        }
+
+        function setupDeviceMotion() {
+            window.addEventListener('devicemotion', (event) => {
+                sendAccelerationData(event.acceleration);
+            });
+        }
+
+        function requestPermission() {
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            setupDeviceMotion();
+                        } else {
+                            alert('加速度センサーへのアクセスが許可されていません。');
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                setupDeviceMotion();
+            }
+        }
+
+        document.getElementById('permissionButton').addEventListener('click', function () {
+            requestPermission();
+        });
+
+        // ページロード時に初期設定を実行
+        document.addEventListener('DOMContentLoaded', function () {
+            requestPermission();
+        });
+
+
+    </script>
+</body>
+
+</html>
