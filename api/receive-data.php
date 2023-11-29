@@ -21,3 +21,19 @@ file_put_contents('acceleration_log.txt', "X: {$data->x}, Y: {$data->y}, Z: {$da
 
 // 成功のレスポンスを返す
 echo json_encode(['status' => 'success', 'data' => $data]);
+
+// TouchDesignerのIPアドレスとポート
+$touchDesignerIP = '192.168.1.10'; // TouchDesignerが動作しているIPアドレス
+$touchDesignerPort = 7000; // TouchDesignerがデータを受け取るポート
+
+// UDPソケットを作成
+$sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+
+// データをTouchDesignerに送信
+socket_sendto($sock, $json, strlen($json), 0, $touchDesignerIP, $touchDesignerPort);
+
+// ソケットを閉じる
+socket_close($sock);
+
+// 成功のレスポンスを返す
+echo json_encode(['status' => 'success', 'data' => $data]);
