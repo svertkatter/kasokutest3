@@ -13,12 +13,14 @@
     <button id="resetButton">円のサイズリセット</button>
     <canvas id="canvas" width="300" height="300"></canvas>
     <script>
-        function sendAccelerationData(acceleration) {
-            // 外部サーバーのエンドポイント
-            const endpoint = 'https://svertkatter.github.io/api/receive-data.php';
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let circleX = canvas.width / 2;
+        let circleY = canvas.height / 2;
+        let circleRadius = 20;
 
-            // HTTPリクエストを使用してデータを送信
-            fetch(endpoint, {
+        function sendDataToServer(acceleration) {
+            fetch('https://your-xfree-server.com/path/to/your/script.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -28,15 +30,44 @@
                     y: acceleration.y,
                     z: acceleration.z
                 })
-            })
-                .then(response => response.json())
-                .then(data => console.log('Success:', data))
-                .catch((error) => console.error('Error:', error));
+            });
         }
 
         function setupDeviceMotion() {
             window.addEventListener('devicemotion', (event) => {
-                sendAccelerationData(event.acceleration);
+                updateCircleSize({
+                    x: event.acceleration.x,
+                    y: event.acceleration.y
+                });
+                drawCircle();
+                sendDataToServer(event.acceleration);
+            });
+        }
+
+        function drawCircle() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
+            ctx.fillStyle = 'blue';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function updateCircleSize(acceleration) {
+            // 加速度の大きさに基づいて円の半径を調整
+            const accelerationMagnitude = Math.sqrt(acceleration.x ** 2 + acceleration.y ** 2);
+            if (accelerationMagnitude > 5) {
+                circleRadius += 5; // この値を調整して、円の成長速度を制御
+            }
+        }
+
+        function setupDeviceMotion() {
+            window.addEventListener('devicemotion', (event) => {
+                updateCircleSize({
+                    x: event.acceleration.x,
+                    y: event.acceleration.y
+                });
+                drawCircle();
             });
         }
 
@@ -60,11 +91,12 @@
             requestPermission();
         });
 
-        // ページロード時に初期設定を実行
-        document.addEventListener('DOMContentLoaded', function () {
-            requestPermission();
+        document.getElementById('resetButton').addEventListener('click', function () {
+            circleRadius = 20; // 円のサイズを初期値にリセット
+            drawCircle();
         });
 
+        drawCircle(); // 初期の円を描画
 
     </script>
 </body>
