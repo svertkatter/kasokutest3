@@ -30,7 +30,7 @@
         }
 
         function updateCircleSize(acceleration) {
-            const accelerationMagnitude = Math.sqrt(acceleration.x ** 2 + acceleration.y ** 2);
+            const accelerationMagnitude = Math.sqrt(acceleration.x ** 2 + acceleration.y ** 2 + acceleration.z * 2);
             if (accelerationMagnitude > 5) {
                 circleRadius += 5;
             }
@@ -44,7 +44,8 @@
             window.addEventListener('devicemotion', (event) => {
                 const acceleration = {
                     x: event.acceleration.x,
-                    y: event.acceleration.y
+                    y: event.acceleration.y,
+                    z: event.acceleration.z
                 };
                 updateCircleSize(acceleration);
                 sendAccelerationData(acceleration);
